@@ -16,7 +16,7 @@ const ProcessFile: React.FC<ProcessFileProps> = ({ setStep, file, setResponseDat
       formData.append("file", file);
 
       try {
-        const response = await fetch(`http://localhost:8000/predict-${selectedModel}`, {
+        const response = await fetch(`https://deeppyduppydoo-backend.micromew.com/predict-${selectedModel}`, {
           method: "POST",
           body: formData,
         });
