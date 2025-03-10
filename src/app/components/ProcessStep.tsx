@@ -7,7 +7,7 @@ const ProcessStep: React.FC = () => {
   const [step, setStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>("default"); // Store selected model
-  const [responseData, setResponseData] = useState<{ filename: string; prediction: string } | null>(null);
+  const [responseData, setResponseData] = useState<{ filename: string; prediction: string; percent: Record<string, number> } | null>(null);
 
   return (
     <div>

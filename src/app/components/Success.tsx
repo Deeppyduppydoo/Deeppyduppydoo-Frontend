@@ -5,7 +5,7 @@ import Image from "next/image";
 
 interface SuccessProps {
   setStep: (step: number) => void;
-  responseData: { filename: string; prediction: string } | null;
+  responseData: { filename: string; prediction: string; percent: Record<string, number> } | null;
 }
 
 const Success: React.FC<SuccessProps> = ({ setStep, responseData }) => {
@@ -21,7 +21,9 @@ const Success: React.FC<SuccessProps> = ({ setStep, responseData }) => {
             {["Oak", "Pat", "Pookkie", "Praewa", "Tup"].map((name) => (
               <div
                 key={name}
-                className={`overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105 flex justify-between items-center gap-5 p-3 border ${responseData.prediction.toLowerCase() === name.toLowerCase() ? 'border-green-500 border-2' : 'border-transparent'}`}
+                className={`overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105 flex justify-between items-center gap-5 p-3 border ${
+                  responseData.prediction.toLowerCase() === name.toLowerCase() ? 'border-green-500 border-2' : 'border-transparent'
+                }`}
               >
                 <Image
                   src={`/people/${name.toLowerCase()}.jpg`}
@@ -31,7 +33,10 @@ const Success: React.FC<SuccessProps> = ({ setStep, responseData }) => {
                   className="rounded-md w-[150px] h-[100px] object-cover"
                 />
 
-                <p className="text-center text-sm  font-bold m">{name}</p>
+                <div className="flex flex-col">
+                  <p className="text-center text-sm font-bold">{name}</p>
+                  <p className="text-gray-700 text-sm">{responseData.percent[name]?.toFixed(2)}%</p>
+                </div>
               </div>
             ))}
           </>
@@ -40,14 +45,12 @@ const Success: React.FC<SuccessProps> = ({ setStep, responseData }) => {
         )}
       </div>
 
-      
       <button
         onClick={() => setStep(0)}
-        className="px-5 py-3 bg-black text-white font-medium rounded-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105  hover:border-2"
+        className="px-5 py-3 bg-black text-white font-medium rounded-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 hover:border-2"
       >
         Draw Again!
       </button>
-
     </div>
   );
 };

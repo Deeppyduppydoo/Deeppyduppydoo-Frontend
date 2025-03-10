@@ -5,7 +5,7 @@ interface ProcessFileProps {
   setStep: (step: number) => void;
   file: File;
   selectedModel: string; // Added selectedModel prop
-  setResponseData: (data: { filename: string; prediction: string }) => void;
+  setResponseData: (data: { filename: string; prediction: string ,percent: Record<string, number>  }) => void;
 }
 
 

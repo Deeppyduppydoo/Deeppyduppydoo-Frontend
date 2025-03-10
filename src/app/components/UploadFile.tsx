@@ -207,6 +207,8 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
             <Image
               key={img}
               src={img}
+              width={96}
+              height={96}
               alt="Selectable"
               className="w-24 h-24 rounded-lg shadow-md cursor-pointer hover:scale-105 transition"
               onClick={() => handleSelectImage(img)}
@@ -219,7 +221,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
       {imagePreview && (
         <div className="mt-4 border-t-2 pt-5">
           <p className="text-gray-700 font-semibold">Selected Image:</p>
-          <Image src={imagePreview} alt="Preview" className="mt-2 rounded-lg shadow-md w-[300px] mx-auto" />
+          <Image src={imagePreview} alt="Preview" className="mt-2 rounded-lg shadow-md w-[300px] mx-auto" width={300} height={300}/>
         </div>
       )}
 
