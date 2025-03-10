@@ -35,7 +35,7 @@ const ProcessFile: React.FC<ProcessFileProps> = ({ setStep, file, setResponseDat
     };
 
     uploadFileToBackend();
-  }, [file, setStep, setResponseData]);
+  }, [file, setStep, setResponseData , selectedModel]);
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-md w-full max-w-md text-center">

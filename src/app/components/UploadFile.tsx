@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 
 interface UploadFileProps {
   setStep: (step: number) => void;
@@ -27,7 +28,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectedModel, setSelectedModelState] = useState<string>("Vgg16");
-  const [file, setLocalFile] = useState<File | null>(null);
+  const [, setLocalFile] = useState<File | null>(null);
   const [mode, setMode] = useState<"draw" | "upload" | "select">("draw"); // Mode management
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -203,7 +204,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
       {mode === "select" && (
         <div className="mt-4 flex justify-center gap-4 flex-wrap">
           {selectImages.map((img) => (
-            <img
+            <Image
               key={img}
               src={img}
               alt="Selectable"
@@ -218,7 +219,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
       {imagePreview && (
         <div className="mt-4 border-t-2 pt-5">
           <p className="text-gray-700 font-semibold">Selected Image:</p>
-          <img src={imagePreview} alt="Preview" className="mt-2 rounded-lg shadow-md w-[300px] mx-auto" />
+          <Image src={imagePreview} alt="Preview" className="mt-2 rounded-lg shadow-md w-[300px] mx-auto" />
         </div>
       )}
 
