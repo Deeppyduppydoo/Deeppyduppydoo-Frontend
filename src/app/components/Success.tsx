@@ -43,7 +43,7 @@ const Success: React.FC<SuccessProps> = ({ setStep, responseData }) => {
       
       <button
         onClick={() => setStep(0)}
-        className="px-5 py-3 bg-black text-white font-medium rounded-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 focus:ring-4 focus:ring-blue-300"
+        className="px-5 py-3 bg-black text-white font-medium rounded-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-105  hover:border-2"
       >
         Draw Again!
       </button>
