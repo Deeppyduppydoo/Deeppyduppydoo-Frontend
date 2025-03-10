@@ -1,18 +1,41 @@
-"use client"
+"use client";
 import React, { useEffect } from "react";
 
 interface ProcessFileProps {
   setStep: (step: number) => void;
+  file: File;
+  selectedModel: string; // Added selectedModel prop
+  setResponseData: (data: { filename: string; prediction: string }) => void;
 }
 
-const ProcessFile: React.FC<ProcessFileProps> = ({ setStep }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setStep(2); // Move to success step after 3 seconds
-    }, 3000);
 
-    return () => clearTimeout(timer);
-  }, [setStep]);
+const ProcessFile: React.FC<ProcessFileProps> = ({ setStep, file, setResponseData, selectedModel }) => {
+  useEffect(() => {
+    const uploadFileToBackend = async () => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch(`http://localhost:8000/predict-${selectedModel}`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("File uploaded successfully!", data);
+          setResponseData(data); // Store response
+          setStep(2); // Move to Success step
+        } else {
+          console.error("File upload failed");
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
+    };
+
+    uploadFileToBackend();
+  }, [file, setStep, setResponseData]);
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-md w-full max-w-md text-center">
