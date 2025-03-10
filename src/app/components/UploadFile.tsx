@@ -8,10 +8,28 @@ interface UploadFileProps {
   setSelectedModel: (model: string) => void;
 }
 
+const categories = ["O", "P", "PK", "PW", "T"];
+const selectImages: string[] = [];
+
+// Generate file paths dynamically
+categories.forEach((category) => {
+  for (let i = 0; i <= 9; i++) {
+    if(category === "O" || category === "PK"){
+
+      selectImages.push(`/Images/${category}${i}.jpeg`);
+    } else {
+      selectImages.push(`/Images/${category}${i}.jpg`);
+    }
+  }
+});
+
 const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedModel }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [selectedModel, setSelectedModelState] = useState<string>("Vgg16"); // Default model
+  const [selectedModel, setSelectedModelState] = useState<string>("Vgg16");
+  const [file, setLocalFile] = useState<File | null>(null);
+  const [mode, setMode] = useState<"draw" | "upload" | "select">("draw"); // Mode management
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,73 +46,81 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
     }
   }, []);
 
-
-
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
 
-    const { offsetX, offsetY } = getCoordinates(e, canvas);
+    const { offsetX, offsetY } = getCoordinates(e, canvasRef.current);
     ctx.beginPath();
     ctx.moveTo(offsetX, offsetY);
     setIsDrawing(true);
   };
 
   const draw = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDrawing) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
+    if (!isDrawing || !canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
 
-    const { offsetX, offsetY } = getCoordinates(e, canvas);
+    const { offsetX, offsetY } = getCoordinates(e, canvasRef.current);
     ctx.lineTo(offsetX, offsetY);
     ctx.stroke();
   };
 
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
+  const stopDrawing = () => setIsDrawing(false);
 
   const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-    }
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
   };
 
   const handleUpload = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Convert the canvas drawing to a PNG file
-    canvas.toBlob((blob) => {
+    if (!canvasRef.current) return;
+    canvasRef.current.toBlob((blob) => {
       if (!blob) return;
+      const newFile = new File([blob], "drawing.png", { type: "image/png" });
 
-      const file = new File([blob], "drawing.png", { type: "image/png" });
-
-      // ✅ Set file in state
-      setFile(file);
-
-      // ✅ Set selected model
+      setFile(newFile);
       setSelectedModel(selectedModel);
+      setLocalFile(newFile);
 
-      // ✅ Move to next step (Processing)
-      setStep(1);
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target?.result as string);
+      reader.readAsDataURL(newFile);
     }, "image/png");
   };
-  
-  
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = event.target.files?.[0];
+    if (!uploadedFile) return;
+
+    setFile(uploadedFile);
+    setSelectedModel(selectedModel);
+    setLocalFile(uploadedFile);
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => setImagePreview(e.target?.result as string);
+    reader.readAsDataURL(uploadedFile);
+  };
+
+  const handleSelectImage = (image: string) => {
+    fetch(image)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const newFile = new File([blob], image, { type: "image/png" });
+
+        setFile(newFile);
+        setSelectedModel(selectedModel);
+        setLocalFile(newFile);
+        setImagePreview(image);
+      });
+  };
 
   const getCoordinates = (
     e: React.MouseEvent | React.TouchEvent,
@@ -112,23 +138,41 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
   const handleModelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedModelState(event.target.value);
   };
-  
-
 
   return (
-    <div className="p-8 px-20 bg-white shadow-2xl rounded-xl w-full max-w-3xl text-center border-2 ">
-      <h2 className="text-2xl font-bold text-gray-700 mb-6">Draw Something</h2>
+    <div className="p-8 px-20 bg-white shadow-2xl rounded-xl w-full max-w-3xl text-center border-2">
+      <h2 className="text-2xl font-bold text-gray-700 mb-6">Upload, Draw, or Select</h2>
 
-      <div className="mt-6">
-        <div
-          className="border border-gray-300 rounded-lg bg-gray-50 cursor-crosshair"
-          style={{ width: "600px", height: "300px" }}
+      {/* Mode Selection */}
+      <div className="mb-4 flex justify-center gap-4">
+        <button
+          className={`px-4 py-2 rounded-md ${mode === "draw" ? "bg-black text-white" : "bg-gray-300 text-black"} transition`}
+          onClick={() => setMode("draw")}
         >
+          Draw
+        </button>
+        <button
+          className={`px-4 py-2 rounded-md ${mode === "upload" ? "bg-black text-white" : "bg-gray-300 text-black"} transition`}
+          onClick={() => setMode("upload")}
+        >
+          Upload
+        </button>
+        <button
+          className={`px-4 py-2 rounded-md ${mode === "select" ? "bg-black text-white" : "bg-gray-300 text-black"} transition`}
+          onClick={() => setMode("select")}
+        >
+          Select Image
+        </button>
+      </div>
+
+      {/* Draw Mode */}
+      {mode === "draw" && (
+        <div className="mt-4">
           <canvas
             ref={canvasRef}
             width={600}
             height={300}
-            className="w-full h-full justify-center"
+            className="border border-gray-300 rounded-lg bg-gray-50 w-full"
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={stopDrawing}
@@ -137,18 +181,48 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
             onTouchMove={draw}
             onTouchEnd={stopDrawing}
           />
+          <div className="mt-4 flex justify-center gap-4">
+            <button onClick={clearCanvas} className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">
+              Clear
+            </button>
+            <button onClick={handleUpload} className="px-4 py-2 bg-black text-white rounded-lg hover:bg-green-600">
+              Save Drawing
+            </button>
+          </div>
         </div>
-        <div className="mt-4 flex justify-center gap-4">
-          <button
-            onClick={clearCanvas}
-            className="px-4 py-2 w-full bg-gray-400 text-white rounded-lg hover:bg-gray-500"
-          >
-            Clear
-          </button>
-        </div>
-      </div>
+      )}
 
-      <div className="mt-5 mb-2">
+      {/* Upload Mode */}
+      {mode === "upload" && (
+        <div className="mt-4">
+          <input type="file" accept="image/*" onChange={handleFileChange} className="border p-2 rounded-md" />
+        </div>
+      )}
+
+      {/* Select Image Mode */}
+      {mode === "select" && (
+        <div className="mt-4 flex justify-center gap-4 flex-wrap">
+          {selectImages.map((img) => (
+            <img
+              key={img}
+              src={img}
+              alt="Selectable"
+              className="w-24 h-24 rounded-lg shadow-md cursor-pointer hover:scale-105 transition"
+              onClick={() => handleSelectImage(img)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Preview */}
+      {imagePreview && (
+        <div className="mt-4 border-t-2 pt-5">
+          <p className="text-gray-700 font-semibold">Selected Image:</p>
+          <img src={imagePreview} alt="Preview" className="mt-2 rounded-lg shadow-md w-[300px] mx-auto" />
+        </div>
+      )}
+
+      <div className="mt-5 mb-2 flex flex-col border-t-2 pt-5">
         <label className="text-lg font-semibold text-gray-700">Select Model  </label>
         <select
           value={selectedModel}
@@ -162,13 +236,22 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
         </select>
       </div>
 
-      {/* Upload Button */}
-      <button
-        onClick={handleUpload}
-        className="mt-6 px-6 py-3 w-full font-medium text-white rounded-lg shadow-md transition duration-300 bg-black hover:bg-white hover:text-black hover:border"
-      >
-        Upload
-      </button>
+
+      {imagePreview &&
+        <button
+          className={`px-4 py-2 rounded-md  bg-black text-white mt-4 font-bold w-full`}
+          onClick={() => setStep(1)}
+        >
+          Next Step
+        </button>
+
+      }
+
+
+
+
+
+
     </div>
   );
 };

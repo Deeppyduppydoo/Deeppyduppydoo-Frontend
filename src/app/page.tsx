@@ -8,12 +8,12 @@ export default function Home() {
   return (
     <div className="relative w-full h-screen">
       {/* Background Particles */}
-      <div className="absolute top-0 left-0 w-full h-full -z-10">
+      <div className="absolute top-0 left-0 w-full min-h-full -z-10">
         <ParticlesBackground />
       </div>
 
       {/* Foreground Content */}
-      <div className="relative flex items-center justify-center h-screen">
+      <div className="relative flex items-center justify-center min-h-screen my-5">
         <ProcessStep />
       </div>
 
