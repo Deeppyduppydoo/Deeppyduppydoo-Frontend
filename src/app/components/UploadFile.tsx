@@ -116,7 +116,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
 
 
   return (
-    <div className="p-8 px-20 bg-white shadow-2xl rounded-xl w-full max-w-3xl text-center ">
+    <div className="p-8 px-20 bg-white shadow-2xl rounded-xl w-full max-w-3xl text-center border-2 ">
       <h2 className="text-2xl font-bold text-gray-700 mb-6">Draw Something</h2>
 
       <div className="mt-6">
@@ -165,7 +165,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ setStep, setFile, setSelectedMo
       {/* Upload Button */}
       <button
         onClick={handleUpload}
-        className="mt-6 px-6 py-3 w-full font-medium text-white rounded-lg shadow-md transition duration-300 bg-blue-500 hover:bg-blue-600"
+        className="mt-6 px-6 py-3 w-full font-medium text-white rounded-lg shadow-md transition duration-300 bg-black hover:bg-white hover:text-black hover:border"
       >
         Upload
       </button>
