@@ -19,7 +19,7 @@ export default function Home() {
 
       {/* GitHub Icon Link */}
       <a
-        href="https://github.com/yourusername/your-repo"
+        href="https://github.com/Deeppyduppydoo/Deeppyduppydoo-Backend/tree/main/model_code"
         target="_blank"
         rel="noopener noreferrer"
         className="absolute bottom-4 right-4 flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors"
