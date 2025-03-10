@@ -14,7 +14,7 @@ const selectImages: string[] = [];
 // Generate file paths dynamically
 categories.forEach((category) => {
   for (let i = 0; i <= 9; i++) {
-    if(category === "O" || category === "PK"){
+    if (category === "O" || category === "PK") {
 
       selectImages.push(`/Images/${category}${i}.jpeg`);
     } else {
